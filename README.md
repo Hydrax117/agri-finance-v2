@@ -1,5 +1,7 @@
 # Agri-Finance Platform
 
+[Live Demo](https://agri-finance-v2.onrender.com)
+
 ## Overview
 
 The Agri-Finance Platform is a web application designed to connect farmers and lenders, facilitating agricultural financing and related services. It provides a comprehensive suite of tools for farmers to manage their finances, access loans, and improve their agricultural practices, while also offering lenders the ability to manage their investment portfolios and assess risk[cite: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].
