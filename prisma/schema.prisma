@@ -1,0 +1,727 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id               String         @id @default(uuid())
+  email            String         @unique
+  password         String
+  name             String
+  phone            String?
+  role             Role           @default(FARMER)
+  status           UserStatus     @default(PENDING)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  lastLogin        DateTime?
+  emailVerified    Boolean        @default(false)
+  phoneVerified    Boolean        @default(false)
+  twoFactorEnabled Boolean        @default(false)
+  admin            Admin?
+  farmer           Farmer?
+  forumComments    ForumComment[]
+  forumPosts       ForumPost[]
+  lender           Lender?
+  receivedMessages Message[]      @relation("MessageReceiver")
+  sentMessages     Message[]      @relation("MessageSender")
+  notifications    Notification[]
+}
+
+model Farmer {
+  id                  String               @id
+  nationalId          String?              @unique
+  dateOfBirth         DateTime?
+  gender              String?
+  address             Address?
+  creditScore         CreditScore?
+  equipmentFinancing  EquipmentFinancing[]
+  farms               Farm[]
+  user                User                 @relation(fields: [id], references: [id], onDelete: Cascade)
+  harvestRecords      HarvestRecord[]
+  insurancePolicies   InsurancePolicy[]
+  inventoryItems      InventoryItem[]
+  loanApplications    LoanApplication[]
+  orders              Order[]              @relation("BuyerOrders")
+  sellerOrders        Order[]              @relation("SellerOrders")
+  plantingRecords     PlantingRecord[]
+  marketplaceListings ProductListing[]
+  transactions        Transaction[]
+  weatherAlerts       WeatherAlert[]
+}
+
+model Lender {
+  id                 String          @id
+  organizationName   String?
+  organizationType   String?
+  registrationNumber String?
+  taxId              String?
+  website            String?
+  address            Address?
+  impactPortfolio    ImpactMetric[]
+  user               User            @relation(fields: [id], references: [id], onDelete: Cascade)
+  loanFunding        LoanFunding[]
+  loanOfferings      LoanOffering[]
+  riskParameters     RiskParameter[]
+}
+
+model Admin {
+  id          String  @id
+  department  String?
+  permissions Json?
+  user        User    @relation(fields: [id], references: [id], onDelete: Cascade)
+}
+
+model Address {
+  id         String  @id @default(uuid())
+  street     String?
+  city       String?
+  state      String?
+  postalCode String?
+  country    String
+  latitude   Float?
+  longitude  Float?
+  farmerId   String? @unique
+  lenderId   String? @unique
+  farmId     String? @unique
+  farm       Farm?   @relation(fields: [farmId], references: [id], onDelete: Cascade)
+  farmer     Farmer? @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+  lender     Lender? @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+}
+
+model Farm {
+  id               String             @id @default(uuid())
+  name             String
+  size             Float
+  sizeUnit         String             @default("hectares")
+  farmerId         String
+  soilType         String?
+  ownership        String?            @default("owned")
+  certifications   String[]           @default([])
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  address          Address?
+  farmer           Farmer             @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+  harvestRecords   HarvestRecord[]
+  inventoryItems   InventoryItem[]
+  plantingRecords  PlantingRecord[]
+  sateliteImagery  SatelliteImagery[]
+  soilAnalysisData SoilAnalysis[]
+  weatherData      WeatherData[]
+}
+
+model PlantingRecord {
+  id                  String          @id @default(uuid())
+  farmId              String
+  farmerId            String
+  cropType            String
+  variety             String?
+  plotSize            Float
+  plotUnit            String          @default("hectares")
+  plantingDate        DateTime
+  expectedHarvestDate DateTime?
+  seedQuantity        Float?
+  seedUnit            String?         @default("kg")
+  fertilizer          String?
+  pesticides          String?
+  irrigationMethod    String?
+  notes               String?
+  status              PlantingStatus  @default(ACTIVE)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  harvestRecords      HarvestRecord[]
+  farm                Farm            @relation(fields: [farmId], references: [id], onDelete: Cascade)
+  farmer              Farmer          @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+}
+
+model HarvestRecord {
+  id               String           @id @default(uuid())
+  farmId           String
+  farmerId         String
+  plantingRecordId String?
+  harvestDate      DateTime
+  cropType         String
+  quantity         Float
+  quantityUnit     String           @default("kg")
+  quality          String?
+  notes            String?
+  marketValue      Float?
+  storageLocation  String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  farm             Farm             @relation(fields: [farmId], references: [id], onDelete: Cascade)
+  farmer           Farmer           @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+  plantingRecord   PlantingRecord?  @relation(fields: [plantingRecordId], references: [id])
+  productListings  ProductListing[]
+}
+
+model InventoryItem {
+  id            String            @id @default(uuid())
+  farmId        String
+  farmerId      String
+  itemType      InventoryItemType
+  name          String
+  quantity      Float
+  unit          String
+  purchaseDate  DateTime?
+  expiryDate    DateTime?
+  purchasePrice Float?
+  currentValue  Float?
+  supplier      String?
+  location      String?
+  notes         String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  farm          Farm              @relation(fields: [farmId], references: [id], onDelete: Cascade)
+  farmer        Farmer            @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+}
+
+model LoanApplication {
+  id                String          @id @default(uuid())
+  farmerId          String
+  amount            Float
+  currency          String          @default("USD")
+  purpose           String
+  term              Int
+  interestRate      Float?
+  status            LoanStatus      @default(PENDING)
+  applicationDate   DateTime        @default(now())
+  approvalDate      DateTime?
+  disbursementDate  DateTime?
+  repaymentSchedule Json?
+  creditScoreId     String?
+  collateral        String?
+  notes             String?
+  updatedAt         DateTime        @updatedAt
+  loanOfferingId    String?
+  documents         Document[]
+  creditScore       CreditScore?    @relation(fields: [creditScoreId], references: [id])
+  farmer            Farmer          @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+  loanOffering      LoanOffering?   @relation(fields: [loanOfferingId], references: [id])
+  loanFunding       LoanFunding[]
+  repayments        LoanRepayment[]
+}
+
+model LoanOffering {
+  id                  String            @id @default(uuid())
+  lenderId            String
+  name                String
+  description         String?
+  minAmount           Float
+  maxAmount           Float
+  currency            String            @default("USD")
+  interestRateMin     Float
+  interestRateMax     Float
+  termMin             Int
+  termMax             Int
+  eligibilityCriteria Json?
+  targetFarmerType    String[]
+  targetCrops         String[]
+  isActive            Boolean           @default(true)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  loanApplications    LoanApplication[]
+  lender              Lender            @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+}
+
+model LoanFunding {
+  id                String          @id @default(uuid())
+  loanApplicationId String
+  lenderId          String
+  amount            Float
+  currency          String          @default("USD")
+  fundingDate       DateTime        @default(now())
+  status            FundingStatus   @default(COMMITTED)
+  notes             String?
+  expectedReturn    Float?
+  impactGoals       Json?
+  updatedAt         DateTime        @updatedAt
+  lender            Lender          @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+  loanApplication   LoanApplication @relation(fields: [loanApplicationId], references: [id], onDelete: Cascade)
+}
+
+model LoanRepayment {
+  id                String          @id @default(uuid())
+  loanApplicationId String
+  amount            Float
+  currency          String          @default("USD")
+  dueDate           DateTime
+  paymentDate       DateTime?
+  status            RepaymentStatus @default(PENDING)
+  paymentMethod     String?
+  paymentReference  String?
+  notes             String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  transactionId     String?         @unique
+  loanApplication   LoanApplication @relation(fields: [loanApplicationId], references: [id], onDelete: Cascade)
+  transaction       Transaction?    @relation(fields: [transactionId], references: [id])
+}
+
+model CreditScore {
+  id                 String            @id @default(uuid())
+  farmerId           String            @unique
+  score              Float
+  scoreRange         String            @default("300-850")
+  lastUpdated        DateTime          @default(now())
+  factors            Json?
+  historyData        Json?
+  externalReferences Json?
+  farmer             Farmer            @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+  loanApplications   LoanApplication[]
+}
+
+model EquipmentFinancing {
+  id               String          @id @default(uuid())
+  farmerId         String
+  equipmentType    String
+  make             String?
+  model            String?
+  year             Int?
+  price            Float
+  currency         String          @default("USD")
+  downPayment      Float?
+  term             Int
+  interestRate     Float?
+  status           FinancingStatus @default(PENDING)
+  applicationDate  DateTime        @default(now())
+  approvalDate     DateTime?
+  disbursementDate DateTime?
+  supplier         String?
+  notes            String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  documents        Document[]
+  farmer           Farmer          @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+}
+
+model ProductListing {
+  id              String         @id @default(uuid())
+  farmerId        String
+  harvestRecordId String?
+  productName     String
+  description     String?
+  quantity        Float
+  quantityUnit    String
+  pricePerUnit    Float
+  currency        String         @default("USD")
+  quality         String?
+  certifications  String[]       @default([])
+  availableFrom   DateTime       @default(now())
+  availableTo     DateTime?
+  deliveryOptions String[]
+  pickupLocation  String?
+  status          ListingStatus  @default(ACTIVE)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  orders          Order[]
+  images          ProductImage[]
+  farmer          Farmer         @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+  harvestRecord   HarvestRecord? @relation(fields: [harvestRecordId], references: [id])
+}
+
+model ProductImage {
+  id               String         @id @default(uuid())
+  productListingId String
+  url              String
+  caption          String?
+  isPrimary        Boolean        @default(false)
+  createdAt        DateTime       @default(now())
+  productListing   ProductListing @relation(fields: [productListingId], references: [id], onDelete: Cascade)
+}
+
+model Order {
+  id               String         @id @default(uuid())
+  productListingId String
+  buyerId          String
+  sellerId         String
+  quantity         Float
+  unitPrice        Float
+  currency         String         @default("USD")
+  totalAmount      Float
+  status           OrderStatus    @default(PENDING)
+  paymentStatus    PaymentStatus  @default(PENDING)
+  paymentMethod    String?
+  deliveryMethod   String?
+  deliveryAddress  String?
+  deliveryDate     DateTime?
+  notes            String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  transactionId    String?        @unique
+  buyer            Farmer         @relation("BuyerOrders", fields: [buyerId], references: [id], onDelete: Cascade)
+  productListing   ProductListing @relation(fields: [productListingId], references: [id])
+  seller           Farmer         @relation("SellerOrders", fields: [sellerId], references: [id], onDelete: Cascade)
+  transaction      Transaction?   @relation(fields: [transactionId], references: [id])
+}
+
+model InsurancePolicy {
+  id              String           @id @default(uuid())
+  farmerId        String
+  policyType      PolicyType
+  policyNumber    String?          @unique
+  provider        String
+  coverageAmount  Float
+  currency        String           @default("USD")
+  premium         Float
+  startDate       DateTime
+  endDate         DateTime
+  coverageDetails Json?
+  status          PolicyStatus     @default(ACTIVE)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  documents       Document[]
+  claims          InsuranceClaim[]
+  farmer          Farmer           @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+}
+
+model InsuranceClaim {
+  id               String          @id @default(uuid())
+  policyId         String
+  claimNumber      String?         @unique
+  incidentDate     DateTime
+  reportDate       DateTime        @default(now())
+  description      String
+  claimAmount      Float?
+  currency         String          @default("USD")
+  status           ClaimStatus     @default(FILED)
+  assessmentDate   DateTime?
+  settlementDate   DateTime?
+  settlementAmount Float?
+  notes            String?
+  updatedAt        DateTime        @updatedAt
+  documents        Document[]
+  policy           InsurancePolicy @relation(fields: [policyId], references: [id], onDelete: Cascade)
+}
+
+model Transaction {
+  id               String            @id @default(uuid())
+  farmerId         String
+  type             TransactionType
+  amount           Float
+  currency         String            @default("USD")
+  status           TransactionStatus @default(PENDING)
+  description      String?
+  paymentMethod    String?
+  paymentReference String?
+  transactionDate  DateTime          @default(now())
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  loanRepayment    LoanRepayment?
+  order            Order?
+  farmer           Farmer            @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+}
+
+model SoilAnalysis {
+  id                String   @id @default(uuid())
+  farmId            String
+  analysisDate      DateTime
+  ph                Float?
+  nitrogenContent   Float?
+  phosphorusContent Float?
+  potassiumContent  Float?
+  organicMatter     Float?
+  texture           String?
+  moisture          Float?
+  recommendations   String?
+  labName           String?
+  sampleLocation    Json?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  farm              Farm     @relation(fields: [farmId], references: [id], onDelete: Cascade)
+}
+
+model WeatherData {
+  id             String   @id @default(uuid())
+  farmId         String
+  date           DateTime
+  temperature    Float?
+  humidity       Float?
+  rainfall       Float?
+  windSpeed      Float?
+  windDirection  String?
+  solarRadiation Float?
+  soilMoisture   Float?
+  dataSource     String?
+  createdAt      DateTime @default(now())
+  farm           Farm     @relation(fields: [farmId], references: [id], onDelete: Cascade)
+}
+
+model WeatherAlert {
+  id         String    @id @default(uuid())
+  farmerId   String
+  alertType  String
+  severity   String
+  message    String
+  issueDate  DateTime  @default(now())
+  expiryDate DateTime?
+  readStatus Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  farmer     Farmer    @relation(fields: [farmerId], references: [id], onDelete: Cascade)
+}
+
+model SatelliteImagery {
+  id                String   @id @default(uuid())
+  farmId            String
+  captureDate       DateTime
+  imageUrl          String
+  ndviValue         Float?
+  soilMoistureValue Float?
+  cropHealthIndex   Float?
+  cloudCoverage     Float?
+  resolution        String?
+  provider          String?
+  createdAt         DateTime @default(now())
+  farm              Farm     @relation(fields: [farmId], references: [id], onDelete: Cascade)
+}
+
+model ImpactMetric {
+  id              String           @id @default(uuid())
+  lenderId        String
+  metricType      ImpactMetricType
+  metricName      String
+  value           Float
+  unit            String?
+  measurementDate DateTime         @default(now())
+  targetValue     Float?
+  description     String?
+  methodology     String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  lender          Lender           @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+}
+
+model RiskParameter {
+  id            String   @id @default(uuid())
+  lenderId      String
+  parameterName String
+  weight        Float
+  threshold     Float?
+  description   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lender        Lender   @relation(fields: [lenderId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  actionUrl String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  senderId   String
+  receiverId String
+  content    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  receiver   User     @relation("MessageReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User     @relation("MessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+}
+
+model ForumPost {
+  id          String         @id @default(uuid())
+  authorId    String
+  title       String
+  content     String
+  tags        String[]
+  attachments String[]
+  viewCount   Int            @default(0)
+  isSticky    Boolean        @default(false)
+  isClosed    Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  comments    ForumComment[]
+  author      User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model ForumComment {
+  id          String    @id @default(uuid())
+  postId      String
+  authorId    String
+  content     String
+  attachments String[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  author      User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post        ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Document {
+  id                   String              @id @default(uuid())
+  name                 String
+  fileUrl              String
+  fileType             String
+  fileSize             Int
+  description          String?
+  tags                 String[]
+  uploadDate           DateTime            @default(now())
+  loanApplicationId    String?
+  equipmentFinancingId String?
+  insurancePolicyId    String?
+  insuranceClaimId     String?
+  equipmentFinancing   EquipmentFinancing? @relation(fields: [equipmentFinancingId], references: [id])
+  insuranceClaim       InsuranceClaim?     @relation(fields: [insuranceClaimId], references: [id])
+  insurancePolicy      InsurancePolicy?    @relation(fields: [insurancePolicyId], references: [id])
+  loanApplication      LoanApplication?    @relation(fields: [loanApplicationId], references: [id])
+}
+
+enum Role {
+  FARMER
+  LENDER
+  ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  DEACTIVATED
+}
+
+enum PlantingStatus {
+  PLANNED
+  ACTIVE
+  HARVESTED
+  FAILED
+}
+
+enum InventoryItemType {
+  SEED
+  FERTILIZER
+  PESTICIDE
+  TOOL
+  EQUIPMENT
+  HARVEST
+  OTHER
+}
+
+enum LoanStatus {
+  DRAFT
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  DISBURSED
+  REPAYING
+  COMPLETED
+  DEFAULTED
+  CANCELLED
+}
+
+enum FundingStatus {
+  COMMITTED
+  DISBURSED
+  CANCELLED
+}
+
+enum RepaymentStatus {
+  PENDING
+  PAID
+  LATE
+  DEFAULTED
+  WAIVED
+}
+
+enum FinancingStatus {
+  DRAFT
+  PENDING
+  APPROVED
+  REJECTED
+  DISBURSED
+  REPAYING
+  COMPLETED
+  DEFAULTED
+  CANCELLED
+}
+
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  SOLD
+  EXPIRED
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  DISPUTED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PolicyType {
+  CROP
+  WEATHER
+  EQUIPMENT
+  LIABILITY
+  HEALTH
+  OTHER
+}
+
+enum PolicyStatus {
+  DRAFT
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  SUSPENDED
+}
+
+enum ClaimStatus {
+  FILED
+  UNDER_REVIEW
+  ADDITIONAL_INFO_NEEDED
+  APPROVED
+  PARTIALLY_APPROVED
+  REJECTED
+  SETTLED
+  CANCELLED
+}
+
+enum TransactionType {
+  LOAN_DISBURSEMENT
+  LOAN_REPAYMENT
+  PRODUCT_SALE
+  PRODUCT_PURCHASE
+  INSURANCE_PREMIUM
+  INSURANCE_CLAIM
+  EQUIPMENT_PURCHASE
+  OTHER
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+}
+
+enum ImpactMetricType {
+  ENVIRONMENTAL
+  SOCIAL
+  ECONOMIC
+  OTHER
+}
