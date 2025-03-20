@@ -210,6 +210,7 @@ async function main() {
     },
   });
   console.log("Created soil analysis");
+  console.log("Soil analysis ID:", soilAnalysis.id);
 
   // Create weather data
   const weatherData = await prisma.weatherData.create({
@@ -227,6 +228,7 @@ async function main() {
     },
   });
   console.log("Created weather data");
+  console.log("Weather data ID:", weatherData.id);
 
   // Create a loan application
   const loanApplication = await prisma.loanApplication.create({
