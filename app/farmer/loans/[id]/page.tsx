@@ -165,7 +165,7 @@ type PageProps = {
   };
 };
 export default async function LoanDetailPage({ params }: PageProps) {
-  const { id } = await params;
+  const { id } = params;
   const loan = await getLoanById(id);
 
   if (!loan) {
