@@ -1,4 +1,3 @@
-// src/app/farmer/loans/[id]/page.tsx
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/Botton";
@@ -64,7 +63,9 @@ async function getLoanById(id: string) {
         { date: new Date("2025-12-01"), amount: 425, status: "PENDING" },
       ],
     },
+    // other loans...
     "2": {
+      // loan data...
       id: "2",
       amount: 2500,
       currency: "USD",
@@ -99,6 +100,7 @@ async function getLoanById(id: string) {
       ],
     },
     "3": {
+      // loan data...
       id: "3",
       amount: 10000,
       currency: "USD",
@@ -159,13 +161,16 @@ const getStatusColor = (status: string) => {
   }
 };
 
-type PageProps = {
+// Use the correct type definition for Next.js page props
+type Props = {
   params: {
     id: string;
   };
+  searchParams?: Record<string, string | string[] | undefined>;
 };
-export default async function LoanDetailPage({ params }: PageProps) {
-  const { id } = params;
+
+export default async function LoanDetailPage({ params }: Props) {
+  const { id } = await params;
   const loan = await getLoanById(id);
 
   if (!loan) {
@@ -320,13 +325,6 @@ export default async function LoanDetailPage({ params }: PageProps) {
             </div>
           )}
 
-          {/* {loan.reviewNotes && (
-            <div className="mt-6 p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-md">
-              <p className="font-medium text-amber-800 dark:text-amber-400 mb-1">Review Notes</p>
-              <p className="text-amber-700 dark:text-amber-300">{loan.reviewNotes}</p>
-            </div>
-          )} */}
-
           {loan.status === "REPAYING" && (
             <div className="mt-6">
               <div className="flex justify-between text-sm mb-1">
@@ -343,45 +341,6 @@ export default async function LoanDetailPage({ params }: PageProps) {
           )}
         </CardContent>
       </Card>
-
-      {/* Repayment Schedule */}
-      {/* {loan.repaymentSchedule && (
-        <div className="mb-8">
-          <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">Repayment Schedule</h2>
-          <div className="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow-card">
-            <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-700">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Payment Date</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Amount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Payment Method</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {loan.repaymentSchedule.map((payment, index) => (
-                  <tr key={index} className={payment.status === "PAID" ? "bg-gray-50 dark:bg-gray-800/50" : ""}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                      {payment.date.toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                      {loan.currency} {payment.amount}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(payment.status)}`}>
-                        {payment.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-300">
-                      {payment.status === "PAID" ? "Bank Transfer" : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )} */}
 
       {/* Documents */}
       {loan.documents && (
