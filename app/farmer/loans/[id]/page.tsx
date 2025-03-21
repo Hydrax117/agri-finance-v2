@@ -159,11 +159,12 @@ const getStatusColor = (status: string) => {
   }
 };
 
-export default async function LoanDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+type PageProps = {
+  params: {
+    id: string;
+  };
+};
+export default async function LoanDetailPage({ params }: PageProps) {
   const { id } = await params;
   const loan = await getLoanById(id);
 
