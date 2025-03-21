@@ -80,27 +80,37 @@ export default function FarmerRegistrationPage() {
     setIsLoading(true);
 
     try {
-      // Here you would call your API to register the user
-      // const response = await fetch('/api/auth/register', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({
-      //     ...formData,
-      //     role: 'FARMER'
-      //   })
-      // });
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          name: formData.name,
+          phone: formData.phone,
+          role: "FARMER",
+          nationalId: formData.nationalId,
+          dateOfBirth: formData.dateOfBirth,
+          gender: formData.gender,
+          country: formData.country,
+        }),
+      });
 
-      // if (!response.ok) throw new Error('Registration failed');
+      const data = await response.json();
 
-      // Mock successful registration
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (!response.ok) {
+        throw new Error(data.error || "Registration failed");
+      }
 
-      // Redirect to success page or onboarding
+      // Redirect to farmer profile page on success
       router.push("/farmer/profile");
     } catch (error) {
       console.error("Registration error:", error);
       setErrors({
-        form: "Failed to register. Please try again.",
+        form:
+          error instanceof Error
+            ? error.message
+            : "Failed to register. Please try again.",
       });
     } finally {
       setIsLoading(false);
