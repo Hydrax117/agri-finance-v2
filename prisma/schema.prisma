@@ -9,31 +9,31 @@ datasource db {
 }
 
 model User {
-  id               String         @id @default(uuid())
-  email            String         @unique
-  password         String
-  name             String
-  phone            String?
-  role             Role           @default(FARMER)
-  status           UserStatus     @default(PENDING)
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  lastLogin        DateTime?
-  emailVerified    Boolean        @default(false)
-   emailVerificationToken      String?
+  id                           String         @id @default(uuid())
+  email                        String         @unique
+  password                     String
+  name                         String
+  phone                        String?
+  role                         Role           @default(FARMER)
+  status                       UserStatus     @default(PENDING)
+  createdAt                    DateTime       @default(now())
+  updatedAt                    DateTime       @updatedAt
+  lastLogin                    DateTime?
+  emailVerified                Boolean        @default(false)
+  emailVerificationToken       String?
   emailVerificationTokenExpiry DateTime?
-   resetToken       String?
-  resetTokenExpiry DateTime?
-  phoneVerified    Boolean        @default(false)
-  twoFactorEnabled Boolean        @default(false)
-  admin            Admin?
-  farmer           Farmer?
-  forumComments    ForumComment[]
-  forumPosts       ForumPost[]
-  lender           Lender?
-  receivedMessages Message[]      @relation("MessageReceiver")
-  sentMessages     Message[]      @relation("MessageSender")
-  notifications    Notification[]
+  resetToken                   String?
+  resetTokenExpiry             DateTime?
+  phoneVerified                Boolean        @default(false)
+  twoFactorEnabled             Boolean        @default(false)
+  admin                        Admin?
+  farmer                       Farmer?
+  forumComments                ForumComment[]
+  forumPosts                   ForumPost[]
+  lender                       Lender?
+  receivedMessages             Message[]      @relation("MessageReceiver")
+  sentMessages                 Message[]      @relation("MessageSender")
+  notifications                Notification[]
 }
 
 model Farmer {

@@ -3,30 +3,49 @@ import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 
 async function getFarmerProfile(userId: string) {
-  return await db.farmer.findUnique({
-    where: { id: userId },
+  if (!userId) {
+    return null;
+  }
+
+  // First get the user with their farmer relation
+  const user = await db.user.findUnique({
+    where: {
+      id: userId,
+    },
     include: {
-      user: true,
-      address: true,
-      creditScore: true,
-      farms: {
+      farmer: {
         include: {
-          harvestRecords: true,
-          plantingRecords: true,
+          user: true,
+          address: true,
+          creditScore: true,
+          farms: {
+            include: {
+              harvestRecords: true,
+              plantingRecords: true,
+            },
+          },
+          loanApplications: {
+            orderBy: {
+              applicationDate: "desc",
+            },
+            take: 5,
+          },
         },
-      },
-      loanApplications: {
-        orderBy: { applicationDate: "desc" },
-        take: 5,
       },
     },
   });
+
+  if (!user?.farmer) {
+    return null;
+  }
+
+  return user.farmer;
 }
 
 export default async function FarmerProfilePage() {
   const session = await getSession();
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     redirect("/login");
   }
 

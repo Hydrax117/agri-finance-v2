@@ -35,13 +35,11 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null;
+          throw new Error("Email and password are required");
         }
 
         const user = await db.user.findUnique({
-          where: {
-            email: credentials.email,
-          },
+          where: { email: credentials.email },
           include: {
             farmer: true,
             lender: true,
@@ -50,84 +48,50 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!user) {
-          throw new Error("User not found");
+          throw new Error("Invalid email or password");
         }
 
-        if (user.status !== "ACTIVE") {
-          throw new Error("Account is not active");
-        }
-
-        const passwordMatch = await compare(
+        const isPasswordValid = await compare(
           credentials.password,
           user.password
         );
 
-        if (!passwordMatch) {
-          throw new Error("Invalid password");
+        if (!isPasswordValid) {
+          throw new Error("Invalid email or password");
         }
 
-        // Update last login
-        await db.user.update({
-          where: { id: user.id },
-          data: { lastLogin: new Date() },
-        });
+        // if (user.status !== "ACTIVE") {
+        //   throw new Error("Account is not active");
+        // }
 
         return {
           id: user.id,
           email: user.email,
           name: user.name,
           role: user.role,
-          farmerId: user.farmer?.id,
-          lenderId: user.lender?.id,
-          adminId: user.admin?.id,
-        } as ExtendedUser;
+        };
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
-      if (user && "role" in user) {
-        const extendedUser = user as ExtendedUser;
-        token.id = extendedUser.id;
-        token.role = extendedUser.role as "FARMER" | "LENDER" | "ADMIN";
-        token.farmerId = extendedUser.farmerId;
-        token.lenderId = extendedUser.lenderId;
-        token.adminId = extendedUser.adminId;
-      }
-      return token;
-    },
     async session({ session, token }) {
-      if (token && session.user) {
-        (session.user as ExtendedUser).id = token.id as string;
-        (session.user as ExtendedUser).role = token.role as
-          | "FARMER"
-          | "LENDER"
-          | "ADMIN";
-        (session.user as ExtendedUser).farmerId = token.farmerId as
-          | string
-          | undefined;
-        (session.user as ExtendedUser).lenderId = token.lenderId as
-          | string
-          | undefined;
-        (session.user as ExtendedUser).adminId = token.adminId as
-          | string
-          | undefined;
-        (session.user as ExtendedUser).id = token.id as string;
-        (session.user as ExtendedUser).role = token.role as
-          | "FARMER"
-          | "LENDER"
-          | "ADMIN";
-        (session.user as ExtendedUser).farmerId = token.farmerId as
-          | string
-          | undefined;
-        (session.user as ExtendedUser).lenderId = token.lenderId as
-          | string
-          | undefined;
-        (session.user as ExtendedUser).adminId = token.adminId as
-          | string
-          | undefined;
+      if (token) {
+        session.user.id = token.sub!;
+        if (
+          token.role === "FARMER" ||
+          token.role === "LENDER" ||
+          token.role === "ADMIN"
+        ) {
+          session.user.role = token.role;
+        }
       }
       return session;
+    },
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = user.role;
+      }
+      return token;
     },
   },
 };
