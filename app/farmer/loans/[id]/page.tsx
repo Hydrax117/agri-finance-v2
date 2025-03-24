@@ -9,6 +9,38 @@ import {
   Card,
 } from "@/components/ui/Card";
 
+// Define loan type for better type safety
+type Loan = {
+  id: string;
+  amount: number;
+  currency: string;
+  purpose: string;
+  term: number;
+  interestRate: number;
+  status: string;
+  applicationDate: Date;
+  approvalDate: Date | null;
+  disbursementDate: Date | null;
+  nextPaymentDate: Date | null;
+  nextPaymentAmount?: number;
+  progress: number;
+  description: string;
+  totalPaid?: number;
+  remainingBalance?: number;
+  loanOfficer?: string;
+  documents?: {
+    name: string;
+    dateUploaded: Date;
+    type: string;
+  }[];
+  repaymentSchedule?: {
+    date: Date;
+    amount: number;
+    status: string;
+  }[];
+  reviewNotes?: string;
+};
+
 async function getLoanById(id: string) {
   // In a real app, this would fetch data from your API based on the ID
   const loans = {
@@ -132,7 +164,7 @@ async function getLoanById(id: string) {
     },
   };
 
-  return loans[id as keyof typeof loans];
+  return loans[id as keyof typeof loans] as Loan | undefined;
 }
 
 // Helper function to get status badge color
@@ -161,15 +193,11 @@ const getStatusColor = (status: string) => {
   }
 };
 
-// Use the correct type definition for Next.js page props
-type Props = {
-  params: {
-    id: string;
-  };
-  searchParams?: Record<string, string | string[] | undefined>;
-};
-
-export default async function LoanDetailPage({ params }: Props) {
+export default async function LoanDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const loan = await getLoanById(id);
 
