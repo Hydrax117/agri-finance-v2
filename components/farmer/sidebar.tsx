@@ -16,7 +16,7 @@ import {
 
 const navigation = [
   { name: "Dashboard", href: "/farmer/dashboard", icon: LayoutDashboard },
-  { name: "My Farms", href: "/farmer/farms", icon: Sprout },
+  { name: "My Farms", href: "/farmer/farm", icon: Sprout },
   { name: "Loans", href: "/farmer/loans", icon: DollarSign },
   { name: "Profile", href: "/farmer/profile", icon: User },
   { name: "Weather Alerts", href: "/farmer/alerts", icon: AlertTriangle },
