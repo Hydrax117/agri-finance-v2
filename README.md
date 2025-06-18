@@ -4,69 +4,69 @@
 
 ## Overview
 
-The Agri-Finance Platform is a web application designed to connect farmers and lenders, facilitating agricultural financing and related services. It provides a comprehensive suite of tools for farmers to manage their finances, access loans, and improve their agricultural practices, while also offering lenders the ability to manage their investment portfolios and assess risk[cite: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].
+The Agri-Finance Platform is a web application designed to connect farmers and lenders, facilitating agricultural financing and related services. It provides a comprehensive suite of tools for farmers to manage their finances, access loans, and improve their agricultural practices, while also offering lenders the ability to manage their investment portfolios and assess risk.
 
 ## Features
 
 - **Farmer Portal:**
-  - Dashboard for farmers to view their financial status and manage their accounts[cite: 6].
-  - Profile management for farmers to set up and maintain their information[cite: 6].
-  - Loan application and tracking features[cite: 6, 7].
-  - Transaction history[cite: 7].
-  - Offline data management for data collection in areas with limited connectivity[cite: 7].
-  - Weather alerts and risk notifications[cite: 7, 8].
-  - Community interaction features, including forums and messaging[cite: 8].
+  - Dashboard for farmers to view their financial status and manage their accounts.
+  - Profile management for farmers to set up and maintain their information.
+  - Loan application and tracking features.
+  - Transaction history.
+  - Offline data management for data collection in areas with limited connectivity.
+  - Weather alerts and risk notifications.
+  - Community interaction features, including forums and messaging.
 - **Lender Portal:**
-  - Dashboard for lenders to manage their portfolios and track investments[cite: 9, 10].
-  - Profile and KYC (Know Your Customer) management[cite: 9].
-  - Marketplace for browsing loan requests[cite: 9].
-  - Portfolio risk analysis[cite: 10].
-  - Investment performance metrics and analytics[cite: 10].
+  - Dashboard for lenders to manage their portfolios and track investments.
+  - Profile and KYC (Know Your Customer) management.
+  - Marketplace for browsing loan requests.
+  - Portfolio risk analysis.
+  - Investment performance metrics and analytics.
 - **Admin Panel:**
-  - Dashboard for platform administrators[cite: 11].
-  - Loan approval management[cite: 11].
-  - User management[cite: 11].
-  - AI model monitoring and configuration[cite: 11].
-  - Platform analytics and system health monitoring[cite: 12].
+  - Dashboard for platform administrators.
+  - Loan approval management.
+  - User management.
+  - AI model monitoring and configuration.
+  - Platform analytics and system health monitoring.
 - **Authentication:**
-  - Secure user authentication with login, registration, and forgot password functionality[cite: 4, 5].
+  - Secure user authentication with login, registration, and forgot password functionality.
 - **Reusable UI Components:**
-  - A set of reusable UI components, including buttons, cards, inputs, and layout components (header, footer, sidebar, mobile navigation)[cite: 12, 13, 14].
-  - Form components for loan applications and profile management[cite: 14].
-  - Dashboard components for displaying loan information, credit scores, weather risk, and yield predictions[cite: 15].
-  - Mobile-optimized components for offline forms and lightweight dashboards[cite: 15, 16].
+  - A set of reusable UI components, including buttons, cards, inputs, and layout components (header, footer, sidebar, mobile navigation).
+  - Form components for loan applications and profile management.
+  - Dashboard components for displaying loan information, credit scores, weather risk, and yield predictions.
+  - Mobile-optimized components for offline forms and lightweight dashboards.
 - **Utility Functions and Libraries:**
-  - Database client[cite: 16].
-  - Authentication utilities[cite: 16].
-  - API utilities[cite: 16, 17].
-  - Offline data synchronization[cite: 17].
-  - Data caching utilities[cite: 17].
-  - AI credit scoring logic, including credit score calculation, weather data processing, yield prediction, soil analysis, and default prediction[cite: 17, 18].
+  - Database client.
+  - Authentication utilities.
+  - API utilities.
+  - Offline data synchronization.
+  - Data caching utilities.
+  - AI credit scoring logic, including credit score calculation, weather data processing, yield prediction, soil analysis, and default prediction.
 - **TypeScript Type Definitions:**
-  - Type definitions for users, loans, weather data, analytics data, and more[cite: 18, 19].
+  - Type definitions for users, loans, weather data, analytics data, and more.
 - **Custom React Hooks:**
-  - Hooks for authentication, loan data, offline status management, weather data, and more[cite: 20].
+  - Hooks for authentication, loan data, offline status management, weather data, and more.
 - **External Service Integrations:**
-  - Payment gateway integration[cite: 21].
-  - Weather API integration[cite: 21].
-  - Satellite data integration[cite: 21].
-  - SMS notifications for farmers[cite: 21].
+  - Payment gateway integration.
+  - Weather API integration.
+  - Satellite data integration.
+  - SMS notifications for farmers.
 - **Analytics Implementation:**
-  - Event tracking, performance metrics, and reporting[cite: 22].
+  - Event tracking, performance metrics, and reporting.
 - **Security Utilities:**
-  - Rate limiting, data encryption, input validation, and security audit logging[cite: 23].
+  - Rate limiting, data encryption, input validation, and security audit logging.
 - **Internationalization (i18n):**
-  - i18n configuration, translation files, and currency formatting utilities[cite: 24].
+  - i18n configuration, translation files, and currency formatting utilities.
 - **Service Workers:**
-  - Background sync worker and offline functionality worker[cite: 25].
+  - Background sync worker and offline functionality worker.
 - **Global Styles:**
-  - Global CSS styles (including Tailwind CSS)[cite: 25].
+  - Global CSS styles (including Tailwind CSS).
 - **Documentation:**
-  - API documentation, architecture documentation, and user/developer guides[cite: 26].
+  - API documentation, architecture documentation, and user/developer guides.
 - **Database ORM:**
-  - Prisma database ORM with schema definition[cite: 27].
+  - Prisma database ORM with schema definition.
 - **Testing Suite:**
-  - Unit tests, integration tests, and end-to-end tests[cite: 27, 28].
+  - Unit tests, integration tests, and end-to-end tests.
 
 ## Technologies Used
 
